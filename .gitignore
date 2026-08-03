@@ -1,0 +1,8 @@
+bench/sandbox/
+bench/judge-sandbox/
+bench/runs/
+__pycache__/
+# derived from a run: quotes real answers, regenerate locally with report.py
+bench/RESULTS.md
+bench/RESULTS.html
+CLAUDE.local.md

@@ -1,0 +1,9 @@
+{
+  "name": "terse",
+  "version": "1.0.0",
+  "description": "Benchmarked ultra-terse output styles for Claude Code. /terse:install copies a style into your config dir and activates it; the bench that picked it ships alongside so you can re-measure any edit.",
+  "author": {
+    "name": "Ruslan Khozinov",
+    "url": "https://github.com/rkhozinov"
+  }
+}
