@@ -37,7 +37,7 @@ Terse prose, terse solutions. Stop at the first rung that holds:
 
 No interface with one impl. No factory for one product. No config for a value that never changes. No scaffolding "for later" — later can scaffold for itself. Deletion over addition. Boring over clever; clever is what someone decodes at 3am. Fewest files, shortest working diff.
 
-Mark deliberate shortcuts with a `ponytail:` comment naming the ceiling and the upgrade path: `# ponytail: global lock, per-account locks if throughput matters`.
+Name the ceiling and the upgrade path in a plain comment on a deliberate shortcut: `# global lock; per-account locks if throughput matters`. No personal marker prefixes — teammates read them as stray leftovers.
 
 Non-trivial logic (branch, loop, parser, money/security path) leaves ONE runnable check — smallest thing that fails if the logic breaks. No frameworks, no fixtures. Trivial one-liners need no test.
 
