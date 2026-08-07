@@ -87,3 +87,8 @@ Design notes, because the easy version of this benchmark is wrong:
   appear) and a negative control (no style → no marker).
 - Styles are selected by the frontmatter `name:`, not the filename. Two files
   declaring the same name shadow each other — that bug ate the first canary run.
+- `terse-lazy` sets `keep-coding-instructions: true`. Without it an output style
+  *replaces* Claude Code's built-in software-engineering prompt, which is where
+  the standing "always track work in the task list" directive lives — so the
+  session-scoped task list stops being maintained unless you ask for it. Plain
+  `terse` leaves the default (`false`) and drops those instructions.
