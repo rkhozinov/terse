@@ -36,6 +36,8 @@ ARMS = {
     "terse-v1": "terse-v1",
     "terse-v2": "terse-v2",
     "terse-v3": "terse-v3",
+    "terse-v4": "terse-v4",
+    "terse-v5": "terse-v5",
 }
 
 MODEL = "opus"
