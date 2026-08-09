@@ -38,6 +38,32 @@ ARMS = {
     "terse-v3": "terse-v3",
     "terse-v4": "terse-v4",
     "terse-v5": "terse-v5",
+    # Model x effort arms: style held constant at the shipped terse-v4 so the only
+    # thing varying is which model thinks how hard. Not comparable to the style arms
+    # above, which all ran on opus at the CLI default effort.
+    "h-low":   "terse-v4",
+    "h-med":   "terse-v4",
+    "s-med":   "terse-v4",
+    "s-high":  "terse-v4",
+    "o-high":  "terse-v4",
+    "o-xhigh": "terse-v4",
+    # No-style controls: terse-v4 was designed and validated on opus, and the cheap
+    # tiers dropped 2x the rubric items under it. These separate model capability
+    # from model x style interaction.
+    "h-med-nostyle": None,
+    "s-med-nostyle": None,
+}
+
+# arm -> (model, effort). Absent = MODEL at the CLI's default effort.
+ARM_CFG = {
+    "h-low":   ("claude-haiku-4-5-20251001", "low"),
+    "h-med":   ("claude-haiku-4-5-20251001", "medium"),
+    "s-med":   ("claude-sonnet-5",           "medium"),
+    "s-high":  ("claude-sonnet-5",           "high"),
+    "o-high":  ("claude-opus-5",             "high"),
+    "o-xhigh": ("claude-opus-5",             "xhigh"),
+    "h-med-nostyle": ("claude-haiku-4-5-20251001", "medium"),
+    "s-med-nostyle": ("claude-sonnet-5",           "medium"),
 }
 
 MODEL = "opus"
@@ -71,17 +97,19 @@ def setup_sandbox(extra_styles=()):
     return SANDBOX
 
 
-def call(prompt, style, out_path, timeout=CELL_TIMEOUT):
+def call(prompt, style, out_path, timeout=CELL_TIMEOUT, model=None, effort=None):
     """One headless call. stdout goes to a file, never a PIPE -- a hung child can
     hold a pipe open past the timeout and freeze the worker."""
     cmd = [claude_bin(), "-p", prompt,
-           "--model", MODEL,
+           "--model", model or MODEL,
            "--output-format", "json",
            "--setting-sources", "project",
            "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}',
            "--tools", "",                       # prose only: no tool-use nondeterminism
            "--permission-mode", "bypassPermissions",
            "--no-session-persistence"]
+    if effort:
+        cmd += ["--effort", effort]
     if style:
         cmd += ["--settings", json.dumps({"outputStyle": style})]
     env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
@@ -143,7 +171,11 @@ def canary():
     checks = [(arm, f"{style}-canary", True) for arm, style in ARMS.items() if style]
     checks.append(("default", None, False))
     for arm, style, expect in checks:
-        r = call("Say hello.", style, d / f"{arm}.json", timeout=120)
+        # model/effort come along so the canary also proves the model id resolves and
+        # the tier accepts that effort level -- a bad id would otherwise only surface
+        # 180 cells into the matrix.
+        model, effort = ARM_CFG.get(arm, (None, None))
+        r = call("Say hello.", style, d / f"{arm}.json", timeout=120, model=model, effort=effort)
         got = CANARY_MARK in (r["text"] or "")
         good = got == expect
         ok &= good
@@ -175,8 +207,10 @@ def cell_dir(out_dir, tid, arm, rep):
 
 def run_cell(tid, arm, rep, out_dir):
     d = cell_dir(out_dir, tid, arm, rep)
-    r = call(TASKS[tid]["prompt"], ARMS[arm], d / "_claude.json")
+    model, effort = ARM_CFG.get(arm, (None, None))
+    r = call(TASKS[tid]["prompt"], ARMS[arm], d / "_claude.json", model=model, effort=effort)
     rec = {"task": tid, "class": TASKS[tid]["class"], "arm": arm, "rep": rep,
+           "model": model or MODEL, "effort": effort or "(default)",
            "chars": len(r["text"]), "text_tokens": text_tokens(r["text"]),
            "lines": len([l for l in r["text"].splitlines() if l.strip()]),
            **{k: v for k, v in r.items() if k != "text"}}
