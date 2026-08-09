@@ -1,0 +1,7 @@
+The `app` container in deployment.yaml has no resource constraints, so it can be scheduled
+anywhere and evicted under pressure. Give it requests and limits:
+
+- requests: 100m CPU, 128Mi memory
+- limits:   500m CPU, 512Mi memory
+
+Change nothing else. The file must stay valid YAML.

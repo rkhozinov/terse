@@ -1,0 +1,3 @@
+`pytest` fails in this directory. Fix `retention.py` so the suite passes.
+
+The tests encode the intended behaviour and are correct -- do not edit test_retention.py.

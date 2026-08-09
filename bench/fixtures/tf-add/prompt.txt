@@ -1,0 +1,8 @@
+Add an `environment` input to this Terraform module and thread it through.
+
+- A new variable `environment`, type string, with a description. No default: callers must set it.
+- `local.name_prefix` must become the project and the environment joined by a hyphen, in that order.
+- Keep the existing `name_prefix` output working.
+- The module must stay `terraform fmt` clean.
+
+Do not run `terraform init`, `plan`, or `apply` -- there is no backend or provider here.

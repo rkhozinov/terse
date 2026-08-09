@@ -1,0 +1,3 @@
+`render_daily` and `render_monthly` in report.py are the same function apart from one prefix.
+Refactor so the shared logic exists once. Both public functions must keep their current names,
+signatures and output. Do not edit test_report.py.
