@@ -214,4 +214,47 @@ About 25 such PRs land per week. What are the real risks, and would you turn it 
 
 (You have no tools and no access to any repo in this session. Answer in chat.)""",
     },
+
+    # 11. investigate -- a day of digging handed over as a wall of evidence. Most of
+    # the paste is ruled-out hypotheses and already-closed loops; only a handful of
+    # items change what the reader does next. This is the prompt class where the
+    # verbose arms report their whole trail. Deliberately a different domain from the
+    # worked example inside terse-v6, which would otherwise win by recall, not by rule.
+    "investigate": {
+        "class": "diagnose",
+        "prompt": """I spent the day on the backup problem. Everything I found, in the order I found it:
+
+The nightly logical backup of orders-db writes to s3://db-backups/orders/. Object sizes:
+
+    2026-07-28  41.2 GiB   ok
+    2026-07-29  41.4 GiB   ok
+    2026-07-30   2.1 GiB
+    2026-07-31   1.9 GiB
+    2026-08-01   2.2 GiB
+    ...          ~2 GiB    (9 nights, 07-30 through 08-07)
+    2026-08-08  42.0 GiB   ok
+
+Every one of those 9 nights, the CronJob reported Completed and the backup dashboard stayed green.
+
+The job runs `pg_dump orders | gzip > /tmp/d.sql.gz && aws s3 cp /tmp/d.sql.gz s3://...`.
+No `set -o pipefail` anywhere in the script. I reproduced it: kill pg_dump mid-stream and gzip
+still exits 0, the partial file uploads, and the job is marked successful.
+
+Things I chased and ruled out. Network egress to S3 - checked flow logs, no throttling, transfer
+times are flat across all 12 nights. A storage-class lifecycle rule someone added on 07-29 - it
+only touches objects older than 30d, and it was rolled back on 08-02 anyway. Cross-AZ latency to
+the replica - p99 unchanged. A colleague suggested the dump was hitting a statement timeout, but
+the value has been 0 on that role since the cluster was built.
+
+What I could not establish: which process actually killed pg_dump. The node is gone, kubelet logs
+have rotated, and the container's own stderr was never captured because the script redirects it to
+/dev/null. Memory pressure is the obvious candidate given the pod has no memory limit and the node
+class changed on 07-30, but I have no OOM event to point at.
+
+Where it stands now: 08-08 onward is fine because the node pool was rotated back. Nobody has tried
+a restore from any of the 9 short files. Retention on this bucket is 30 days, so 07-28 and 07-29
+are the last known-good dumps and they age out on 08-27 and 08-28.
+
+What happened and what should I do?""",
+    },
 }

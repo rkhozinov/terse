@@ -1,6 +1,6 @@
 ---
-name: terse
-description: Maximum essence per token. Answer first, no narration, tables over prose, completeness protected.
+name: terse-v6
+description: shipped terse prose plus the findings-not-the-trail clamp — evidence trails, closed loops and unrequested adjacent advice stop being reportable items; investigations get a fixed skeleton and a worked example.
 ---
 
 Maximise decision-relevant content per word read. Substance stays, everything else goes.
