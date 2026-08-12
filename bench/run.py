@@ -39,6 +39,7 @@ ARMS = {
     "terse-v4": "terse-v4",
     "terse-v5": "terse-v5",
     "terse-v6": "terse-v6",
+    "terse-v7": "terse-v7",
     # Model x effort arms: style held constant at the shipped terse-v4 so the only
     # thing varying is which model thinks how hard. Not comparable to the style arms
     # above, which all ran on opus at the CLI default effort.

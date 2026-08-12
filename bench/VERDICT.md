@@ -1,3 +1,56 @@
+## Verdict — round 3 (2026-08-12, runs `20260812-114836` and `20260812-123215`)
+
+**Ship `terse-v6`.** It reads at 0.66x and 0.62x the unstyled control across two
+independent runs — against v4's 0.88x in the first of them — while holding
+critical retention within a point of the control in both. Answer density is 42.5
+and 29.3 points per 1k tokens against the control's 25.0 and 17.2.
+
+The change over v4 is three rules and a worked example, all aimed at one failure:
+asked what happened after a day of investigation, v4 reported the whole trail —
+timeline, run-count table, ruled-out hypotheses, an epistemics paragraph, and
+adjacent advice nobody requested. The completeness rule was being read as
+protecting evidence when it only ever meant to protect findings. v6 says the
+trail is not an item, gives investigations a fixed skeleton (what broke, impact
+now, the gap, the fix and its size, one question), and tells the model to write
+the version it would produce if the reader replied "shorter".
+
+A new `investigate` task was added to the corpus for this: a day of digging
+handed over as a wall of evidence, in a deliberately different domain from the
+worked example inside the style so v6 cannot win by recall. v6 reads it at 0.52x
+against v4's 0.70x with retention level at 87%.
+
+**`terse-v7` was rejected, for the same reason `terse-v5` was.** v7 added a rule
+protecting caveats attached to a recommended action. It was designed around a
+single observation in a single rep — v6 had recommended `gunzip -t` as a dump
+validity check, which does not work because a truncated `pg_dump` still yields a
+well-formed gzip stream. Checking the other two reps afterwards showed v6 stating
+that exact caveat correctly in one of them. The rule cost 7% more tokens
+(0.66x vs 0.62x) to buy +1.1 points of retention, +0.7 of critical retention and
+ten fewer dropped caveats, all inside the noise this bench has already been shown
+to carry — and distortions moved the wrong way, 18 to 22. Round 2's warning was
+written down and then not followed: *re-run before designing a fix around one
+per-class gap.* Two rounds in a row, that detour costs about $7 and an hour.
+
+**The between-run swing is larger than round 2 recorded, and it is not confined to
+per-class numbers.** The *identical* unstyled control moved 78.8% → 68.5% on
+retention, 14 → 16 on distortions and 82 → 95 on dropped caveats between two runs
+90 minutes apart on the same corpus and model. v6, also identical, moved
+75.7% → 69.8%, 11 → 18, 91 → 117. The rubric is rebuilt per run from the union of
+that run's answers, so absolute retention is only meaningful *within* a run.
+Compare arms to the control in the same run; never carry an absolute figure across
+runs, and never carry a distortion count across runs at all.
+
+**A round-1 finding that did not replicate, recorded because it was briefly
+believed.** In `20260812-114836` v6 showed 11 distortions against the control's 14
+— the first compressed arm in this bench to beat the control on that axis. It did
+not hold: in `20260812-123215` v6 showed 18 against the control's 16. The
+long-standing result stands unchanged — every compressed arm carries more
+judge-flagged distortions than no style at all.
+
+**What is solid after two runs:** the token cut. 0.66x and 0.62x, with critical
+retention at 82.6%/79.5% against a control at 85.4%/80.3%. Everything else moved
+more between runs than between arms.
+
 ## Verdict — round 2 (2026-08-07, runs `20260807-194955` and `20260807-201114`)
 
 **Ship `terse-v4`.** It reads at 0.75–0.76x the default across two independent
